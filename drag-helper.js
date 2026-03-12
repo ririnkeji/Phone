@@ -1,14 +1,13 @@
-// ระบบลากปุ่ม — โหลดก่อน index.js
 window.PhoneDragHelper = {
     init: function(el, onClickFn) {
         let startX, startY, startL, startT;
         let dragging = false;
         let moved = false;
 
-        // ตั้งตำแหน่งเริ่มต้น
         el.style.position = 'fixed';
         el.style.left = '20px';
         el.style.top  = (window.innerHeight / 2 - 24) + 'px';
+        el.style.cursor = 'grab';
 
         function getXY(e) {
             return e.touches
@@ -24,7 +23,6 @@ window.PhoneDragHelper = {
             startL = r.left; startT = r.top;
             dragging = true;
             moved = false;
-            el.style.transition = 'none';
             el.style.cursor = 'grabbing';
         }
 
@@ -51,9 +49,9 @@ window.PhoneDragHelper = {
 
         el.addEventListener('mousedown',  onStart, { passive: false });
         el.addEventListener('touchstart', onStart, { passive: false });
-        document.addEventListener('mousemove',  onMove, { passive: false });
-        document.addEventListener('touchmove',  onMove, { passive: false });
-        document.addEventListener('mouseup',  onEnd);
-        document.addEventListener('touchend', onEnd);
+        document.addEventListener('mousemove', onMove, { passive: false });
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('mouseup',   onEnd);
+        document.addEventListener('touchend',  onEnd);
     }
 };
