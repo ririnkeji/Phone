@@ -1,0 +1,212 @@
+/* ปุ่มเปิดโทรศัพท์ — ลอยอยู่ข้างจอ */
+#phone-toggle-btn {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6eb4, #ff3c8e);
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(255, 62, 142, 0.5);
+    font-size: 22px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#phone-toggle-btn:hover {
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 6px 28px rgba(255, 62, 142, 0.7);
+}
+
+/* overlay มืดด้านหลังโทรศัพท์ */
+#phone-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+#phone-overlay.active {
+    display: flex;
+}
+
+/* ตัวโทรศัพท์ */
+#phone-frame {
+    width: 320px;
+    height: 620px;
+    background: #0d0d0d;
+    border-radius: 44px;
+    border: 3px solid #2a2a2a;
+    box-shadow:
+        0 0 0 1px #111,
+        0 30px 80px rgba(0,0,0,0.8),
+        inset 0 0 30px rgba(255,255,255,0.02);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* notch กล้องหน้า */
+#phone-notch {
+    width: 100%;
+    height: 36px;
+    background: #0d0d0d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#phone-notch::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    border: 1px solid #333;
+}
+
+/* status bar */
+#phone-statusbar {
+    width: 100%;
+    padding: 0 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+#phone-statusbar .time {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: -apple-system, sans-serif;
+}
+
+#phone-statusbar .icons {
+    color: #fff;
+    font-size: 10px;
+    display: flex;
+    gap: 4px;
+}
+
+/* หน้าจอหลัก (ที่อยู่ข้างใน) */
+#phone-screen {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* home screen grid */
+#phone-home {
+    width: 100%;
+    height: 100%;
+    padding: 20px 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 20px 10px;
+    align-content: start;
+    overflow-y: auto;
+}
+
+/* แต่ละ app icon */
+.app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.app-icon:hover {
+    transform: scale(1.1);
+}
+
+.app-icon:active {
+    transform: scale(0.93);
+}
+
+.app-icon .icon-img {
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.app-icon .icon-label {
+    color: #fff;
+    font-size: 10px;
+    font-family: -apple-system, sans-serif;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    text-align: center;
+}
+
+/* สีพื้นหลังแต่ละแอพ */
+.app-settings .icon-img  { background: linear-gradient(135deg, #636366, #3a3a3c); }
+.app-chat .icon-img      { background: linear-gradient(135deg, #30d158, #25a244); }
+.app-photos .icon-img    { background: linear-gradient(135deg, #ff9f0a, #ff6b00); }
+.app-lazzy .icon-img     { background: linear-gradient(135deg, #5e5ce6, #3634a3); }
+.app-instagram .icon-img { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.app-twitter .icon-img   { background: linear-gradient(135deg, #1d9bf0, #0d6eaa); }
+.app-youtube .icon-img   { background: linear-gradient(135deg, #ff453a, #cc0000); }
+.app-music .icon-img     { background: linear-gradient(135deg, #ff2d55, #af0a3e); }
+.app-phone .icon-img     { background: linear-gradient(135deg, #30d158, #1a7a34); }
+.app-camera .icon-img    { background: linear-gradient(135deg, #636366, #1c1c1e); }
+
+/* navbar ด้านล่าง */
+#phone-navbar {
+    height: 50px;
+    background: rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 30px;
+    flex-shrink: 0;
+}
+
+#phone-navbar button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: color 0.2s;
+}
+
+#phone-navbar button:hover {
+    color: #fff;
+}
+
+/* animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
