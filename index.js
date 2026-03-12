@@ -55,10 +55,62 @@
     // ── ลากปุ่มหัวใจ ──────────────────────────────────────────
     function setupDraggable() {
     const btn = document.getElementById('phone-toggle-btn');
-    window.PhoneDragHelper.init(btn, () => {
-        document.getElementById('phone-overlay').classList.add('active');
-    });
+
+    let startX, startY, startL, startT;
+    let dragging = false;
+    let moved = false;
+
+    btn.style.left = '20px';
+    btn.style.top  = (window.innerHeight / 2 - 24) + 'px';
+    btn.style.cursor = 'grab';
+
+    function getXY(e) {
+        return e.touches
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            : { x: e.clientX, y: e.clientY };
+    }
+
+    function onStart(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const p = getXY(e);
+        const r = btn.getBoundingClientRect();
+        startX = p.x; startY = p.y;
+        startL = r.left; startT = r.top;
+        dragging = true;
+        moved = false;
+        btn.style.cursor = 'grabbing';
+    }
+
+    function onMove(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        const p = getXY(e);
+        const dx = p.x - startX;
+        const dy = p.y - startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        btn.style.left = Math.min(Math.max(startL + dx, 0), window.innerWidth  - btn.offsetWidth)  + 'px';
+        btn.style.top  = Math.min(Math.max(startT + dy, 0), window.innerHeight - btn.offsetHeight) + 'px';
+    }
+
+    function onEnd(e) {
+        if (!dragging) return;
+        dragging = false;
+        btn.style.cursor = 'grab';
+        if (!moved) {
+            document.getElementById('phone-overlay').classList.add('active');
+        }
+        moved = false;
+    }
+
+    btn.addEventListener('mousedown',  onStart, { passive: false });
+    btn.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('mousemove', onMove, { passive: false });
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup',  onEnd);
+    document.addEventListener('touchend', onEnd);
 }
+
 
     // ── navbar ────────────────────────────────────────────────
     function setupNavbar() {
