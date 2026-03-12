@@ -13,12 +13,12 @@
     }
 
     function startClock() {
-        const el = document.getElementById('phone-time');
-        if (el) el.textContent = getTime();
         setInterval(() => {
             const el = document.getElementById('phone-time');
             if (el) el.textContent = getTime();
-        }, 30000);
+        }, 10000);
+        const el = document.getElementById('phone-time');
+        if (el) el.textContent = getTime();
     }
 
     // ── สร้าง HTML โทรศัพท์ ────────────────────────────────────
@@ -35,7 +35,7 @@
                 </div>
                 <div id="phone-screen">
                     <div id="phone-home">
-                        <div class="app-icon app-settings"  data-app="settings">
+                        <div class="app-icon app-settings" data-app="settings">
                             <div class="icon-img">⚙️</div>
                             <span class="icon-label">Settings</span>
                         </div>
@@ -77,10 +77,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- navbar: ซ้าย(ว่าง) | กลาง(ปิดจอ) | ขวา(home) -->
                 <div id="phone-navbar">
-                    <button id="btn-menu">　</button>
+                    <button id="btn-menu" style="opacity:0;cursor:default;">　</button>
                     <button id="btn-sleep" title="ปิดจอ">⏻</button>
                     <button id="btn-back"  title="Home">↩</button>
                 </div>
@@ -94,73 +92,64 @@
         const wrapper = document.createElement('div');
         wrapper.innerHTML = buildPhoneHTML();
         document.body.appendChild(wrapper);
+
+        // ตั้งตำแหน่งปุ่มหัวใจหลัง inject แล้ว
+        const btn = document.getElementById('phone-toggle-btn');
+        btn.style.left = '20px';
+        btn.style.top  = (window.innerHeight / 2 - 24) + 'px';
     }
 
-    // ── ลากปุ่มหัวใจได้ (mouse + touch) ──────────────────────
+    // ── ลากปุ่มหัวใจได้ ───────────────────────────────────────
     function setupDraggable() {
         const btn = document.getElementById('phone-toggle-btn');
         let dragging = false;
-        let startX, startY, startLeft, startTop;
+        let offsetX = 0, offsetY = 0;
         let moved = false;
 
         function onStart(e) {
             dragging = true;
-            moved = false;
+            moved    = false;
             btn.classList.add('dragging');
 
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            const rect = btn.getBoundingClientRect();
+            const rect    = btn.getBoundingClientRect();
 
-            startX    = clientX;
-            startY    = clientY;
-            startLeft = rect.left;
-            startTop  = rect.top;
-
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
             e.preventDefault();
         }
 
         function onMove(e) {
             if (!dragging) return;
+            moved = true;
+
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-            const dx = clientX - startX;
-            const dy = clientY - startY;
+            const newLeft = Math.min(Math.max(clientX - offsetX, 0), window.innerWidth  - btn.offsetWidth);
+            const newTop  = Math.min(Math.max(clientY - offsetY, 0), window.innerHeight - btn.offsetHeight);
 
-            // ถ้าขยับเกิน 5px ถือว่าลาก
-            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
-
-            // คำนวณตำแหน่งใหม่ ไม่ให้หลุดนอกจอ
-            const newLeft = Math.min(Math.max(startLeft + dx, 0), window.innerWidth  - btn.offsetWidth);
-            const newTop  = Math.min(Math.max(startTop  + dy, 0), window.innerHeight - btn.offsetHeight);
-
-            btn.style.left      = newLeft + 'px';
-            btn.style.top       = newTop  + 'px';
-            btn.style.transform = 'none'; // เอา translateY(-50%) ออกตอนลาก
+            btn.style.left = newLeft + 'px';
+            btn.style.top  = newTop  + 'px';
         }
 
         function onEnd() {
-            if (!dragging) return;
             dragging = false;
             btn.classList.remove('dragging');
         }
 
-        // mouse events
         btn.addEventListener('mousedown',  onStart);
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup',   onEnd);
 
-        // touch events
         btn.addEventListener('touchstart', onStart, { passive: false });
         document.addEventListener('touchmove',  onMove, { passive: false });
         document.addEventListener('touchend',   onEnd);
 
-        // คลิกเปิดโทรศัพท์ (เฉพาะตอนไม่ได้ลาก)
         btn.addEventListener('click', () => {
-            if (moved) return; // ถ้าลากอยู่ไม่เปิด
-            const overlay = document.getElementById('phone-overlay');
-            overlay.classList.add('active');
+            if (moved) return;
+            document.getElementById('phone-overlay').classList.add('active');
         });
     }
 
@@ -168,23 +157,20 @@
     function setupNavbar() {
         const overlay = document.getElementById('phone-overlay');
 
-        // ปุ่มกลาง = ปิดจอ (ปิด overlay)
         document.getElementById('btn-sleep').addEventListener('click', () => {
             overlay.classList.remove('active');
         });
 
-        // ปุ่มขวา = กลับ home
         document.getElementById('btn-back').addEventListener('click', () => {
             showHome();
         });
 
-        // กด overlay ด้านนอกโทรศัพท์ = ปิด
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) overlay.classList.remove('active');
         });
     }
 
-    // ── Home Screen ───────────────────────────────────────────
+    // ── Home ──────────────────────────────────────────────────
     function showHome() {
         document.querySelectorAll('.app-page').forEach(p => p.remove());
         document.getElementById('phone-home').style.display = 'grid';
@@ -201,10 +187,10 @@
         document.getElementById('phone-home').style.display = 'none';
         document.querySelectorAll('.app-page').forEach(p => p.remove());
         switch (appName) {
-            case 'chat':     renderChatApp();    break;
-            case 'camera':   renderCameraApp();  break;
-            case 'lazzy':    renderLazzyApp();   break;
-            default:         renderComingSoon(appName);
+            case 'chat':   renderChatApp();   break;
+            case 'camera': renderCameraApp(); break;
+            case 'lazzy':  renderLazzyApp();  break;
+            default:       renderComingSoon(appName);
         }
     }
 
@@ -232,7 +218,7 @@
         screen.appendChild(page);
     }
 
-    // ── App: Camera Security ──────────────────────────────────
+    // ── App: Camera ───────────────────────────────────────────
     function renderCameraApp() {
         const screen = document.getElementById('phone-screen');
         const page = document.createElement('div');
@@ -244,7 +230,7 @@
             </div>
             <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#111;padding:2px;">
                 ${[1,2,3,4].map(n => `
-                <div style="background:#0a0a0a;border:1px solid #2a2a2a;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:#333;font-size:10px;font-family:-apple-system,sans-serif;position:relative;">
+                <div style="background:#0a0a0a;border:1px solid #2a2a2a;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:#333;font-size:10px;font-family:-apple-system,sans-serif;position:relative;min-height:80px;">
                     <span style="font-size:20px">📹</span>
                     <span>CAM 0${n}</span>
                     <span style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:${n===3?'#ff453a':'#30d158'};border-radius:50%;"></span>
@@ -291,17 +277,31 @@
         screen.appendChild(page);
     }
 
-    // ── Extension Panel ใน SillyTavern Settings ───────────────
+    // ── Extension Panel ───────────────────────────────────────
+    // ST ใช้ jQuery และมี event ชื่อ 'extension_settings_ready'
     function setupExtensionPanel() {
-        // ST จะสร้าง panel ให้ถ้าเราใส่ html ใน getExtensionPrompt
-        // วิธีง่ายสุดคือ inject เข้าไปใน extensions panel โดยตรง
-        const checkPanel = setInterval(() => {
-            // หา container ของ extensions ใน ST
-            const container = document.querySelector('#extensions_settings');
-            if (!container) return;
-            clearInterval(checkPanel);
+        // ลอง inject ทุก 1 วินาที จนกว่าจะเจอ container
+        let tries = 0;
+        const timer = setInterval(() => {
+            tries++;
+            if (tries > 30) { clearInterval(timer); return; } // หยุดหลัง 30 วิ
 
-            // สร้าง section ของเรา
+            // ST มักจะมี div id นี้หรือ class นี้
+            const possible = [
+                document.querySelector('#extensions_settings2'),
+                document.querySelector('#extensions_settings'),
+                document.querySelector('.extension_settings'),
+                document.querySelector('#extensions-settings'),
+            ].filter(Boolean);
+
+            if (possible.length === 0) return;
+            clearInterval(timer);
+
+            const container = possible[0];
+
+            // ถ้าสร้างแล้วก็ไม่ต้องสร้างซ้ำ
+            if (document.getElementById('phone-ui-settings')) return;
+
             const section = document.createElement('div');
             section.id = 'phone-ui-settings';
             section.innerHTML = `
@@ -312,11 +312,10 @@
                     จอโทรศัพท์จำลองสำหรับ SillyTavern
                 </div>
 
-                <!-- toggle เปิด/ปิด -->
                 <div class="phone-ui-toggle-row">
                     <div>
-                        <label>เปิดใช้งาน Phone UI</label>
-                        <small>แสดงปุ่มหัวใจข้างจอ</small>
+                        <label style="color:#fff;font-size:14px;font-weight:500;">เปิดใช้งาน Phone UI</label>
+                        <small style="color:#636366;font-size:11px;display:block;margin-top:2px;">แสดงปุ่มหัวใจข้างจอ</small>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" id="phone-ui-enabled" checked>
@@ -324,10 +323,8 @@
                     </label>
                 </div>
 
-                <!-- เลือก mode -->
-                <div class="mode-selector">
+                <div class="mode-selector" style="margin-top:12px;">
                     <div class="mode-selector-title">โหมด</div>
-
                     <button class="mode-btn active" id="mode-normal">
                         <span class="mode-icon">📱</span>
                         <div class="mode-text">
@@ -335,8 +332,7 @@
                             <span>โทรศัพท์ทั่วไป</span>
                         </div>
                     </button>
-
-                    <button class="mode-btn" id="mode-horror">
+                    <button class="mode-btn" id="mode-horror" style="margin-top:8px;">
                         <span class="mode-icon">👻</span>
                         <div class="mode-text">
                             <strong>Horror RPG</strong>
@@ -345,25 +341,26 @@
                     </button>
                 </div>
             `;
+
+            // ใส่ไว้ตอนต้นของ container
             container.prepend(section);
 
-            // toggle เปิด/ปิดปุ่มหัวใจ
+            // toggle เปิด/ปิด
             document.getElementById('phone-ui-enabled').addEventListener('change', (e) => {
-                const btn = document.getElementById('phone-toggle-btn');
-                btn.style.display = e.target.checked ? 'flex' : 'none';
+                document.getElementById('phone-toggle-btn').style.display = e.target.checked ? 'flex' : 'none';
             });
 
-            // สลับ mode (UI เท่านั้น ยังไม่มีระบบจริง)
+            // สลับ mode
             document.getElementById('mode-normal').addEventListener('click', () => {
                 document.getElementById('mode-normal').classList.add('active');
                 document.getElementById('mode-horror').classList.remove('active');
             });
-
             document.getElementById('mode-horror').addEventListener('click', () => {
                 document.getElementById('mode-horror').classList.add('active');
                 document.getElementById('mode-normal').classList.remove('active');
             });
-        }, 500);
+
+        }, 1000);
     }
 
     // ── เริ่มทำงาน ────────────────────────────────────────────
