@@ -1,6 +1,6 @@
 /* ── ปุ่มหัวใจ ── */
 #phone-toggle-btn {
-    position: fixed;
+    position: relative;
     width: 48px;
     height: 48px;
     border-radius: 50%;
