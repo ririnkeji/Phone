@@ -3,11 +3,10 @@
     "loading_order": 10,
     "requires": [],
     "optional": [],
-    "js": ["drag-helper.js", "index.js"],
+    "js": ["index.js"],
     "css": ["style.css"],
-    "author": "ririnkeji",
+    "author": "ririn",
     "version": "1.0.0",
     "homePage": "",
     "auto_update": false
 }
-
