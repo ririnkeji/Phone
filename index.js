@@ -54,56 +54,11 @@
 
     // ── ลากปุ่มหัวใจ ──────────────────────────────────────────
     function setupDraggable() {
-        const btn = document.getElementById('phone-toggle-btn');
-
-        // ตั้งตำแหน่งเริ่มต้นด้วย left/top แทน transform
-        btn.style.left = '20px';
-        btn.style.top  = (window.innerHeight / 2 - 24) + 'px';
-
-        let dragging = false;
-        let offsetX = 0, offsetY = 0;
-        let moved = false;
-
-        function startDrag(cx, cy) {
-            dragging = true;
-            moved    = false;
-            const rect = btn.getBoundingClientRect();
-            offsetX = cx - rect.left;
-            offsetY = cy - rect.top;
-            btn.classList.add('dragging');
-        }
-
-        function moveDrag(cx, cy) {
-            if (!dragging) return;
-            moved = true;
-            const newLeft = Math.min(Math.max(cx - offsetX, 0), window.innerWidth  - btn.offsetWidth);
-            const newTop  = Math.min(Math.max(cy - offsetY, 0), window.innerHeight - btn.offsetHeight);
-            btn.style.left = newLeft + 'px';
-            btn.style.top  = newTop  + 'px';
-        }
-
-        function endDrag() {
-            if (!dragging) return;
-            dragging = false;
-            btn.classList.remove('dragging');
-        }
-
-        // Mouse
-        btn.addEventListener('mousedown',  e => { e.preventDefault(); startDrag(e.clientX, e.clientY); });
-        document.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
-        document.addEventListener('mouseup',   () => endDrag());
-
-        // Touch
-        btn.addEventListener('touchstart', e => { e.preventDefault(); startDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-        document.addEventListener('touchmove',  e => moveDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: false });
-        document.addEventListener('touchend',   () => endDrag());
-
-        // คลิกเปิดโทรศัพท์ (เฉพาะตอนไม่ได้ลาก)
-        btn.addEventListener('click', () => {
-            if (moved) { moved = false; return; }
-            document.getElementById('phone-overlay').classList.add('active');
-        });
-    }
+    const btn = document.getElementById('phone-toggle-btn');
+    window.PhoneDragHelper.init(btn, () => {
+        document.getElementById('phone-overlay').classList.add('active');
+    });
+}
 
     // ── navbar ────────────────────────────────────────────────
     function setupNavbar() {
