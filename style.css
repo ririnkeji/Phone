@@ -7,7 +7,7 @@
     background: linear-gradient(135deg, #ff6eb4, #ff3c8e);
     border: none;
     cursor: grab;
-    z-index: 1000000 !important; /* ดันให้สูงกว่าทุกอย่างใน ST */
+    z-index: 2000000 !important; /* ดันให้สูงกว่าทุกอย่างใน ST */
     box-shadow: 0 4px 20px rgba(255, 62, 142, 0.5);
     display: flex;
     align-items: center;
