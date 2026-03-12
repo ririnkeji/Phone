@@ -1,84 +1,482 @@
-/* ── ปุ่มหัวใจ ── */
+/* ═══════════════════════════════════════
+   Phone UI — Japanese Horror Theme
+   แตะแค่ visual ไม่แตะ drag/button logic
+   ═══════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap');
+
+:root {
+    --phone-bg:        #080808;
+    --phone-surface:   #0f0f0f;
+    --phone-surface2:  #141414;
+    --phone-border:    #1e1e1e;
+    --phone-text:      #c8c8c8;
+    --phone-text-dim:  #4a4a4a;
+    --phone-accent:    #8b0000;
+    --phone-accent2:   #4a0000;
+    --phone-red:       #cc2200;
+    --phone-grain:     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ── ปุ่มหัวใจ — ห้ามแตะ logic แค่เพิ่ม style ── */
 #phone-toggle-btn {
-    position: relative;
+    position: fixed;
+    background: radial-gradient(circle at 35% 35%, #ff6eb4, #c0005a);
+    border: none;
+    border-radius: 50%;
     width: 48px;
     height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ff6eb4, #ff3c8e);
-    border: none;
+    font-size: 22px;
     cursor: grab;
-    z-index: 2000000 !important; /* ดันให้สูงกว่าทุกอย่างใน ST */
-    box-shadow: 0 4px 20px rgba(255, 62, 142, 0.5);
+    z-index: 2000000 !important;
+    box-shadow:
+        0 0 0 1px rgba(255,62,142,0.2),
+        0 4px 20px rgba(180,0,80,0.5),
+        0 0 30px rgba(180,0,80,0.15);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    touch-action: none; /* ห้าม browser แย่งลาก */
+    touch-action: none;
     user-select: none;
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition: box-shadow 0.3s;
 }
 
 #phone-toggle-btn.dragging {
-    opacity: 0.8;
-    transform: scale(1.1);
+    opacity: 0.85;
+    transform: scale(1.08);
     cursor: grabbing !important;
-    transition: none !important; /* ห้ามมี transition ขณะลากเพื่อให้ลื่นไหล */
+    transition: none !important;
 }
 
-/* ── Overlay & Frame ── */
+/* ── Overlay ── */
 #phone-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px) brightness(0.4);
     z-index: 1000001;
     display: none;
     align-items: center;
     justify-content: center;
 }
+
 #phone-overlay.active { display: flex; }
 
+/* ── Frame โทรศัพท์ ── */
 #phone-frame {
-    width: 320px;
-    height: 600px;
-    background: #000;
-    border-radius: 40px;
-    border: 3px solid #333;
+    width: 300px;
+    height: 580px;
+    background: var(--phone-bg);
+    background-image: var(--phone-grain);
+    border-radius: 36px;
+    border: 1.5px solid #1a1a1a;
+    box-shadow:
+        0 0 0 1px #000,
+        0 0 60px rgba(139,0,0,0.08),
+        0 40px 80px rgba(0,0,0,0.9),
+        inset 0 1px 0 rgba(255,255,255,0.03);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
+    font-family: 'Noto Sans JP', -apple-system, sans-serif;
+    animation: phoneAppear 0.3s cubic-bezier(0.16,1,0.3,1);
 }
+
+@keyframes phoneAppear {
+    from { transform: translateY(24px) scale(0.97); opacity: 0; }
+    to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+/* ── Notch ── */
+#phone-notch {
+    width: 100%;
+    height: 28px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#phone-notch::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #0d0d0d;
+    border-radius: 50%;
+    border: 1px solid #1c1c1c;
+    box-shadow: 0 0 4px rgba(139,0,0,0.3);
+}
+
+/* ── Status Bar ── */
+#phone-statusbar {
+    width: 100%;
+    height: 18px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: var(--phone-bg);
+}
+
+#phone-statusbar .time {
+    color: var(--phone-text);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+#phone-statusbar .icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ── SVG icons แทน emoji ── */
+.sb-icon {
+    width: 13px;
+    height: 13px;
+    opacity: 0.6;
+    fill: none;
+    stroke: var(--phone-text);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sb-battery {
+    width: 18px;
+    height: 10px;
+}
+
+/* ── Phone Screen ── */
+#phone-screen {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--phone-bg);
+}
+
+/* ── Home Screen ── */
+#phone-home {
+    width: 100%;
+    height: 100%;
+    padding: 16px 12px 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px 6px;
+    align-content: start;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-sizing: border-box;
+}
+
+#phone-home::-webkit-scrollbar { display: none; }
+
+/* ── App Icon ── */
+.app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 6px 4px;
+    border-radius: 10px;
+    transition: background 0.15s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app-icon:hover  { background: rgba(255,255,255,0.04); }
+.app-icon:active { transform: scale(0.9); }
+
+.icon-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* แสงสะท้อนบน icon */
+.icon-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        160deg,
+        rgba(255,255,255,0.08) 0%,
+        transparent 60%
+    );
+    border-radius: 14px;
+    pointer-events: none;
+}
+
+/* SVG icon ข้างใน */
+.icon-img svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: rgba(255,255,255,0.9);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+.icon-label {
+    color: var(--phone-text);
+    font-size: 9.5px;
+    font-weight: 400;
+    text-align: center;
+    letter-spacing: 0.2px;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 64px;
+}
+
+/* ── สีพื้นหลังแต่ละแอพ ── */
+[data-app="settings"] .icon-img { background: linear-gradient(145deg, #2c2c2e, #1c1c1e); }
+[data-app="chat"]     .icon-img { background: linear-gradient(145deg, #1a3a1a, #0d200d); }
+[data-app="photos"]   .icon-img { background: linear-gradient(145deg, #2a1f0d, #1a1208); }
+[data-app="lazzy"]    .icon-img { background: linear-gradient(145deg, #1e0a2a, #120618);
+                                   box-shadow: 0 2px 12px rgba(100,0,180,0.2), inset 0 1px 0 rgba(255,255,255,0.06); }
+[data-app="instagram"] .icon-img { background: linear-gradient(145deg, #2a1520, #180a12); }
+[data-app="twitter"]   .icon-img { background: linear-gradient(145deg, #0a1a2a, #050f18); }
+[data-app="youtube"]   .icon-img { background: linear-gradient(145deg, #2a0a0a, #180505);
+                                    box-shadow: 0 2px 12px rgba(180,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06); }
+[data-app="music"]     .icon-img { background: linear-gradient(145deg, #1a0a1a, #100610); }
+[data-app="camera"]    .icon-img { background: linear-gradient(145deg, #0a0a1a, #050510); }
 
 /* ── Navbar ── */
 #phone-navbar {
-    height: 60px;
-    background: #111;
+    height: 52px;
+    background: var(--phone-surface);
+    border-top: 1px solid var(--phone-border);
     display: flex;
-    justify-content: space-around;
     align-items: center;
-    border-top: 1px solid #222;
+    justify-content: space-around;
+    padding: 0 20px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+#phone-navbar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,0,0,0.3), transparent);
 }
 
 #phone-navbar button {
     background: none;
     border: none;
-    color: #888;
-    font-size: 20px;
+    color: var(--phone-text-dim);
     cursor: pointer;
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+    font-size: 18px;
 }
 
-#phone-navbar button:hover { color: #fff; background: rgba(255,255,255,0.1); }
-
-/* App Grid */
-#phone-home {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    padding: 20px;
+#phone-navbar button:hover {
+    color: var(--phone-text);
+    background: rgba(255,255,255,0.05);
 }
-.app-icon { display: flex; flex-direction: column; align-items: center; color: #fff; font-size: 10px; cursor: pointer; }
-.icon-img { width: 50px; height: 50px; border-radius: 12px; background: #333; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 5px; }
+
+#phone-navbar button:active {
+    transform: scale(0.88);
+}
+
+#btn-sleep:hover { color: #cc2200 !important; }
+
+/* ── App Pages ── */
+.app-page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--phone-bg);
+    font-family: 'Noto Sans JP', -apple-system, sans-serif;
+}
+
+.app-header {
+    padding: 12px 16px;
+    background: var(--phone-surface);
+    border-bottom: 1px solid var(--phone-border);
+    color: var(--phone-text);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.app-header svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--phone-text-dim);
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.app-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--phone-text-dim);
+    font-size: 12px;
+}
+
+.app-empty svg {
+    width: 36px;
+    height: 36px;
+    stroke: #2a2a2a;
+    stroke-width: 1;
+    fill: none;
+    margin-bottom: 4px;
+}
+
+/* ── Extension Panel ── */
+#phone-ui-settings {
+    padding: 16px;
+    font-family: 'Noto Sans JP', -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.phone-ui-panel-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1e1e1e;
+}
+
+.phone-ui-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border: 1px solid #1e1e1e;
+}
+
+.phone-ui-toggle-row label {
+    color: #c8c8c8;
+    font-size: 13px;
+}
+
+.phone-ui-toggle-row small {
+    color: #4a4a4a;
+    font-size: 10px;
+    display: block;
+    margin-top: 2px;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #2a2a2a;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px; top: 3px;
+    background: #888;
+    border-radius: 50%;
+    transition: transform 0.3s, background 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider { background: #3a0000; }
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+    background: #cc2200;
+}
+
+.mode-selector-title {
+    color: #4a4a4a;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 2px;
+}
+
+.mode-btn {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #1e1e1e;
+    background: rgba(255,255,255,0.02);
+    color: #c8c8c8;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+    width: 100%;
+    font-family: inherit;
+}
+
+.mode-btn:hover { background: rgba(255,255,255,0.05); border-color: #2a2a2a; }
+
+.mode-btn.active {
+    border-color: #3a0000;
+    background: rgba(139,0,0,0.08);
+}
+
+.mode-icon { font-size: 20px; flex-shrink: 0; }
+
+.mode-btn .mode-text strong {
+    display: block;
+    font-size: 13px;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.mode-btn .mode-text span {
+    font-size: 10px;
+    color: #4a4a4a;
+}
+
+.mode-btn.active .mode-text span { color: #8b0000; }
