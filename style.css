@@ -16,8 +16,11 @@
     align-items: center;
     justify-content: center;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    touch-action: none;          /* ← บอก browser อย่า scroll */
+    -webkit-touch-callout: none; /* ← กัน popup ของ iOS */
     user-select: none;
-    touch-action: none;
+    -webkit-user-select: none;
+
 }
 
 #phone-toggle-btn:hover {
