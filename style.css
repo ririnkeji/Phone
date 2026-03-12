@@ -1,4 +1,4 @@
-/* ปุ่มหัวใจ — ลากได้ */
+/* ── ปุ่มหัวใจ ── */
 #phone-toggle-btn {
     position: fixed;
     left: 20px;
@@ -14,12 +14,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-    touch-action: none;          /* ← บอก browser อย่า scroll */
-    -webkit-touch-callout: none; /* ← กัน popup ของ iOS */
+    touch-action: none;
+    -webkit-touch-callout: none;
     user-select: none;
     -webkit-user-select: none;
-
+    transition: box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
 #phone-toggle-btn:hover {
@@ -27,13 +26,32 @@
     transform: scale(1.1);
 }
 
+/* dragging class — ต้องตรงกับ dragClass ใน DragHelper */
 #phone-toggle-btn.dragging {
-    cursor: grabbing;
-    transform: scale(1.15);
-    box-shadow: 0 8px 32px rgba(255, 62, 142, 0.8);
+    opacity: 0.9;
+    transform: scale(1.15) rotate(5deg);
+    transition: none !important;
+    box-shadow: 0 10px 30px rgba(255, 62, 142, 0.6);
+    z-index: 10000 !important;
+    cursor: grabbing !important;
 }
 
-/* overlay */
+@media (max-width: 768px) {
+    #phone-toggle-btn.dragging {
+        transform: scale(1.2) rotate(3deg);
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    #phone-toggle-btn {
+        cursor: grab;
+    }
+    #phone-toggle-btn:active {
+        cursor: grabbing;
+    }
+}
+
+/* ── overlay ── */
 #phone-overlay {
     position: fixed;
     inset: 0;
@@ -46,11 +64,9 @@
     animation: fadeIn 0.3s ease;
 }
 
-#phone-overlay.active {
-    display: flex;
-}
+#phone-overlay.active { display: flex; }
 
-/* ตัวโทรศัพท์ */
+/* ── phone frame ── */
 #phone-frame {
     width: 320px;
     height: 620px;
@@ -68,7 +84,6 @@
     animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* notch */
 #phone-notch {
     width: 100%;
     height: 36px;
@@ -88,7 +103,6 @@
     border: 1px solid #333;
 }
 
-/* status bar */
 #phone-statusbar {
     width: 100%;
     padding: 0 20px;
@@ -113,14 +127,12 @@
     gap: 4px;
 }
 
-/* หน้าจอหลัก */
 #phone-screen {
     flex: 1;
     overflow: hidden;
     position: relative;
 }
 
-/* home screen grid */
 #phone-home {
     width: 100%;
     height: 100%;
@@ -133,7 +145,6 @@
     overflow-y: auto;
 }
 
-/* app icon */
 .app-icon {
     display: flex;
     flex-direction: column;
@@ -165,7 +176,6 @@
     text-align: center;
 }
 
-/* สีแอพ */
 .app-settings .icon-img  { background: linear-gradient(135deg, #636366, #3a3a3c); }
 .app-chat .icon-img      { background: linear-gradient(135deg, #30d158, #25a244); }
 .app-photos .icon-img    { background: linear-gradient(135deg, #ff9f0a, #ff6b00); }
@@ -177,7 +187,6 @@
 .app-phone .icon-img     { background: linear-gradient(135deg, #30d158, #1a7a34); }
 .app-camera .icon-img    { background: linear-gradient(135deg, #636366, #1c1c1e); }
 
-/* navbar ด้านล่าง */
 #phone-navbar {
     height: 56px;
     background: rgba(255,255,255,0.04);
@@ -189,7 +198,6 @@
     flex-shrink: 0;
 }
 
-/* ปุ่ม navbar ทั้งหมด */
 #phone-navbar button {
     background: none;
     border: none;
@@ -205,52 +213,19 @@
     height: 44px;
 }
 
-#phone-navbar button:hover {
-    background: rgba(255,255,255,0.08);
-    transform: scale(1.1);
-}
+#phone-navbar button:hover  { background: rgba(255,255,255,0.08); transform: scale(1.1); }
+#phone-navbar button:active { transform: scale(0.92); }
 
-#phone-navbar button:active {
-    transform: scale(0.92);
-}
+#btn-sleep { color: rgba(255,255,255,0.5); }
+#btn-sleep:hover { color: #fff !important; background: rgba(255,69,58,0.2) !important; }
+#btn-back  { color: rgba(255,255,255,0.6); }
+#btn-back:hover  { color: #fff !important; }
+#btn-menu  { color: rgba(255,255,255,0.3); cursor: default !important; }
 
-/* ปุ่มปิดจอ (กลาง) */
-#btn-sleep {
-    color: rgba(255,255,255,0.5);
-}
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-#btn-sleep:hover {
-    color: #fff !important;
-    background: rgba(255,69,58,0.2) !important;
-}
-
-/* ปุ่ม back (ขวา) */
-#btn-back {
-    color: rgba(255,255,255,0.6);
-}
-
-#btn-back:hover {
-    color: #fff !important;
-}
-
-/* ปุ่มซ้าย placeholder */
-#btn-menu {
-    color: rgba(255,255,255,0.3);
-    cursor: default !important;
-}
-
-/* animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(60px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-}
-
-/* ── Extension Panel (Settings ใน ST) ── */
+/* ── Extension Panel ── */
 #phone-ui-settings {
     padding: 16px;
     display: flex;
@@ -269,20 +244,6 @@
     border: 1px solid rgba(255,255,255,0.08);
 }
 
-.phone-ui-toggle-row label {
-    color: #fff;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.phone-ui-toggle-row small {
-    color: #636366;
-    font-size: 11px;
-    display: block;
-    margin-top: 2px;
-}
-
-/* toggle switch */
 .toggle-switch {
     position: relative;
     width: 44px;
@@ -290,11 +251,7 @@
     flex-shrink: 0;
 }
 
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
 
 .toggle-slider {
     position: absolute;
@@ -318,20 +275,10 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
-.toggle-switch input:checked + .toggle-slider {
-    background: #30d158;
-}
+.toggle-switch input:checked + .toggle-slider { background: #30d158; }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
-.toggle-switch input:checked + .toggle-slider::before {
-    transform: translateX(18px);
-}
-
-/* mode selector */
-.mode-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+.mode-selector { display: flex; flex-direction: column; gap: 8px; }
 
 .mode-selector-title {
     color: #ebebf5;
@@ -357,33 +304,9 @@
     gap: 12px;
 }
 
-.mode-btn:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.2);
-}
-
-.mode-btn.active {
-    border-color: #ff3c8e;
-    background: rgba(255,62,142,0.12);
-}
-
-.mode-btn .mode-icon {
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.mode-btn .mode-text strong {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 2px;
-}
-
-.mode-btn .mode-text span {
-    font-size: 11px;
-    color: #636366;
-}
-
-.mode-btn.active .mode-text span {
-    color: #ff6eb4;
-}
+.mode-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+.mode-btn.active { border-color: #ff3c8e; background: rgba(255,62,142,0.12); }
+.mode-btn .mode-icon { font-size: 24px; flex-shrink: 0; }
+.mode-btn .mode-text strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.mode-btn .mode-text span { font-size: 11px; color: #636366; }
+.mode-btn.active .mode-text span { color: #ff6eb4; }
