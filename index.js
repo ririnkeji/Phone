@@ -60,9 +60,11 @@
     let dragging = false;
     let moved = false;
 
+    btn.style.position = 'fixed';
     btn.style.left = '20px';
     btn.style.top  = (window.innerHeight / 2 - 24) + 'px';
-    btn.style.cursor = 'grab';
+    btn.style.right = 'auto';
+    btn.style.bottom = 'auto';
 
     function getXY(e) {
         return e.touches
@@ -73,42 +75,46 @@
     function onStart(e) {
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation();
         const p = getXY(e);
         const r = btn.getBoundingClientRect();
         startX = p.x; startY = p.y;
         startL = r.left; startT = r.top;
         dragging = true;
         moved = false;
-        btn.style.cursor = 'grabbing';
+        btn.classList.add('dragging');
     }
 
     function onMove(e) {
         if (!dragging) return;
         e.preventDefault();
+        e.stopPropagation();
         const p = getXY(e);
         const dx = p.x - startX;
         const dy = p.y - startY;
         if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-        btn.style.left = Math.min(Math.max(startL + dx, 0), window.innerWidth  - btn.offsetWidth)  + 'px';
-        btn.style.top  = Math.min(Math.max(startT + dy, 0), window.innerHeight - btn.offsetHeight) + 'px';
+        const newL = Math.min(Math.max(startL + dx, 0), window.innerWidth  - btn.offsetWidth);
+        const newT = Math.min(Math.max(startT + dy, 0), window.innerHeight - btn.offsetHeight);
+        btn.style.left = newL + 'px';
+        btn.style.top  = newT + 'px';
     }
 
     function onEnd(e) {
         if (!dragging) return;
         dragging = false;
-        btn.style.cursor = 'grab';
+        btn.classList.remove('dragging');
         if (!moved) {
             document.getElementById('phone-overlay').classList.add('active');
         }
         moved = false;
     }
 
-    btn.addEventListener('mousedown',  onStart, { passive: false });
-    btn.addEventListener('touchstart', onStart, { passive: false });
-    document.addEventListener('mousemove', onMove, { passive: false });
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('mouseup',  onEnd);
-    document.addEventListener('touchend', onEnd);
+btn.addEventListener('mousedown',  onStart, { capture: true, passive: false });
+    btn.addEventListener('touchstart', onStart, { capture: true, passive: false });
+    document.addEventListener('mousemove', onMove, { capture: true, passive: false });
+    document.addEventListener('touchmove', onMove, { capture: true, passive: false });
+    document.addEventListener('mouseup',  onEnd,  { capture: true });
+    document.addEventListener('touchend', onEnd,  { capture: true });
 }
 
 
