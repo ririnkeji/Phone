@@ -264,7 +264,7 @@
             </div>
 
             <div id="phone-navbar">
-               <button id="btn-menu" style="opacity:0;pointer-events:none;">
+              <button id="btn-menu" title="เมนู" style="color:rgba(255,255,255,0.6);">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="1.5"
          stroke-linecap="round">
