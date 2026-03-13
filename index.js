@@ -250,16 +250,16 @@
                     </div>
 
                     <div class="app-icon" data-app="camera">
-                        <div class="icon-img">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M23 7l-7-4-8 4v13l8 4 7-4V7z"/>
-                                <line x1="8" y1="7" x2="8" y2="20"/>
-                                <line x1="16" y1="3" x2="16" y2="17"/>
-                            </svg>
-                        </div>
-                        <span class="icon-label">Camera</span>
-                    </div>
-
+    <div class="icon-img">
+        <svg viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="14" r="3"/>
+            <path d="M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>
+            <circle cx="18" cy="10" r="1" fill="white" stroke="none"/>
+        </svg>
+    </div>
+    <span class="icon-label">Security</span>
+</div>
                 </div>
             </div>
 
