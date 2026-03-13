@@ -375,14 +375,14 @@
         ];
 
         try {
-            const res = await fetch('http://localhost:8000/api/backends/chat-completions', {
+            const res = await fetch('http://localhost:8000/api/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages,
-                    max_tokens: 200,
-                    stream: false
+    messages,
+    max_tokens: 200,
+    stream: false
+})
                 })
             });
             if (!res.ok) throw new Error('API error: ' + res.status);
@@ -395,7 +395,7 @@
     }
 
     // ── Chat App — Inbox ──────────────────────────────────────
-    function renderChatApp() {
+     function renderChatApp() {
         const screen = document.getElementById('phone-screen');
         const page = document.createElement('div');
         page.className = 'app-page';
@@ -438,16 +438,17 @@
                     const last = history.length > 0 ? history[history.length - 1] : null;
                     return `
                     <div class="chat-contact-row" data-id="${c.id}" style="
-                        padding:12px 16px;border-bottom:1px solid #0f0f0f;
+                        padding:12px 16px;border-bottom:1px solid #111;
                         display:flex;align-items:center;gap:12px;cursor:pointer;
+                        transition:background 0.15s;
                     ">
-                        <div style="
+                       <div style="
                             width:42px;height:42px;border-radius:50%;
                             background:linear-gradient(135deg,#1e0a2a,#3a0000);
                             display:flex;align-items:center;justify-content:center;
                             color:#c8c8c8;font-size:16px;font-weight:500;
                             flex-shrink:0;border:1px solid #2a2a2a;
-                        ">${c.name.charAt(0).toUpperCase()}</div>
+                       ">${c.name.charAt(0).toUpperCase()}</div>
                         <div style="flex:1;min-width:0;">
                             <div style="color:#e0e0e0;font-size:13px;font-weight:500;margin-bottom:3px;">
                                 ${c.name}
@@ -465,25 +466,75 @@
             </div>
         `;
 
-        screen.appendChild(page);
+       screen.appendChild(page);
 
-        document.getElementById('chat-add-btn').addEventListener('click', () => {
-            showAddContactModal();
-        });
+        document.getElementById('chat-add-btn').addEventListener('click', showAddContactModal);
 
+        // กด contact → เปิดแชท
         page.querySelectorAll('.chat-contact-row').forEach(row => {
+            let holdTimer = null;
+
+            // กดค้าง → ลบ contact
+            row.addEventListener('mousedown', () => {
+                holdTimer = setTimeout(() => showDeleteContactModal(row.dataset.id), 600);
+            });
+            row.addEventListener('mouseup',    () => clearTimeout(holdTimer));
+            row.addEventListener('mouseleave', () => clearTimeout(holdTimer));
+            row.addEventListener('touchstart', () => {
+                holdTimer = setTimeout(() => showDeleteContactModal(row.dataset.id), 600);
+            }, { passive: true });
+            row.addEventListener('touchend', () => clearTimeout(holdTimer));
+
+            // กดธรรมดา → เปิดแชท
             row.addEventListener('click', () => {
                 const contact = getContacts().find(c => c.id === row.dataset.id);
                 if (contact) openChatConversation(contact);
             });
         });
     }
+// ── Modal ลบ contact ──────────────────────────────────────
+    function showDeleteContactModal(contactId) {
+        document.getElementById('delete-modal')?.remove();
+        const contact = getContacts().find(c => c.id === contactId);
+        if (!contact) return;
 
-    // ── Modal เพิ่มผู้ติดต่อ ──────────────────────────────────
-    function showAddContactModal() {
-        document.getElementById('add-contact-modal')?.remove();
         const modal = document.createElement('div');
-        modal.id = 'add-contact-modal';
+        modal.id = 'delete-modal';
+        modal.style.cssText = `
+            position:absolute;inset:0;background:rgba(0,0,0,0.85);
+            z-index:999;display:flex;align-items:center;
+            justify-content:center;padding:20px;
+        `;
+        modal.innerHTML = `
+            <div style="
+                background:#0f0f0f;border:1px solid #2a0000;
+                border-radius:16px;padding:20px;width:100%;
+                display:flex;flex-direction:column;gap:14px;
+            ">
+                <div style="color:#e0e0e0;font-size:14px;font-weight:600;text-align:center;">
+                    ลบการสนทนา?
+                </div>
+                <div style="color:#4a4a4a;font-size:12px;text-align:center;">
+                    "${contact.name}" และข้อความทั้งหมดจะหายไป
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button id="del-cancel" style="
+                        flex:1;padding:10px;background:none;
+                        border:1px solid #2a2a2a;border-radius:8px;
+                        color:#4a4a4a;cursor:pointer;font-size:13px;font-family:inherit;
+                    ">ยกเลิก</button>
+                    <button id="del-confirm" style="
+                        flex:1;padding:10px;background:#4a0000;
+                        border:1px solid #6a0000;border-radius:8px;
+                        color:#ff8080;cursor:pointer;font-size:13px;
+                        font-family:inherit;font-weight:500;
+                    ">ลบ</button>
+                </div>
+            </div>
+        `;
+        
+    // ── Modal เพิ่มผู้ติดต่อ ──────────────────────────────────
+    function showAddContact-modal';
         modal.style.cssText = `
             position:absolute;inset:0;
             background:rgba(0,0,0,0.85);
@@ -527,22 +578,19 @@
                 </div>
             </div>
         `;
-        document.getElementById('phone-frame').appendChild(modal);
+         document.getElementById('phone-frame').appendChild(modal);
 
-        document.getElementById('modal-cancel').addEventListener('click', () => modal.remove());
-        document.getElementById('modal-confirm').addEventListener('click', () => {
-            const name = document.getElementById('new-contact-name').value.trim();
-            const personality = document.getElementById('new-contact-personality').value.trim();
-            if (!name) return;
-            const contacts = getContacts();
-            contacts.push({ id: 'contact-' + Date.now(), name, personality });
+        document.getElementById('del-cancel').addEventListener('click', () => modal.remove());
+        document.getElementById('del-confirm').addEventListener('click', () => {
+            // ลบ contact + history
+            const contacts = getContacts().filter(c => c.id !== contactId);
             saveContacts(contacts);
+            localStorage.removeItem('phone-ui-chat-' + contactId);
             modal.remove();
             document.querySelectorAll('.app-page').forEach(p => p.remove());
             renderChatApp();
         });
     }
-
     // ── หน้าแชทกับคนนั้นๆ ────────────────────────────────────
     function openChatConversation(contact) {
         const screen = document.getElementById('phone-screen');
@@ -555,35 +603,36 @@
         const history = getChatHistory(contact.id);
 
         page.innerHTML = `
+            <!-- header -->
             <div style="
-                padding:10px 16px;background:#0f0f0f;
+                padding:10px 12px;background:#0f0f0f;
                 border-bottom:1px solid #1a1a1a;
-                display:flex;align-items:center;gap:10px;flex-shrink:0;
+                display:flex;align-items:center;gap:8px;flex-shrink:0;
             ">
                 <button id="chat-back-btn" style="
                     background:none;border:none;color:#4a4a4a;
-                    cursor:pointer;font-size:22px;padding:2px 6px 2px 0;
+                    cursor:pointer;font-size:22px;padding:0 4px 0 0;
+                    line-height:1;
                 ">‹</button>
                 <div style="
-                    width:32px;height:32px;border-radius:50%;
+                    width:30px;height:30px;border-radius:50%;flex-shrink:0;
                     background:linear-gradient(135deg,#1e0a2a,#3a0000);
                     display:flex;align-items:center;justify-content:center;
-                    color:#c8c8c8;font-size:14px;font-weight:500;
-                    border:1px solid #2a2a2a;flex-shrink:0;
+                    color:#c8c8c8;font-size:13px;border:1px solid #2a2a2a;
                 ">${contact.name.charAt(0).toUpperCase()}</div>
-                <div style="flex:1;">
+                <div style="flex:1;min-width:0;">
                     <div style="color:#e0e0e0;font-size:13px;font-weight:500;">${contact.name}</div>
                     <div id="chat-status" style="color:#4a4a4a;font-size:10px;">online</div>
                 </div>
             </div>
 
+            <!-- messages -->
             <div id="chat-messages" style="
-                flex:1;overflow-y:auto;
-                padding:12px 10px;
-                display:flex;flex-direction:column;gap:6px;
+                flex:1;overflow-y:auto;padding:10px 8px;
+                display:flex;flex-direction:column;gap:4px;
                 scrollbar-width:none;
             ">
-                ${history.map(m => renderBubble(m.text, m.isUser)).join('')}
+               ${history.map((m, i) => renderBubble(m, i)).join('')}
                 ${history.length === 0 ? `
                     <div style="text-align:center;color:#2a2a2a;font-size:11px;margin-top:20px;">
                         ${contact.name} · เริ่มการสนทนา
@@ -593,142 +642,266 @@
 
             <!-- input bar -->
             <div style="
-                padding:6px 8px;background:#0f0f0f;
-                border-top:1px solid #1a1a1a;
-                display:flex;flex-direction:column;gap:6px;flex-shrink:0;
+                padding:6px 8px 8px;background:#0f0f0f;
+                border-top:1px solid #1a1a1a;flex-shrink:0;
             ">
-                <!-- emoji picker (ซ่อนอยู่) -->
+               <!-- emoji picker -->
                 <div id="emoji-picker" style="
-                    display:none;flex-wrap:wrap;gap:4px;
+                    display:none;flex-wrap:wrap;gap:3px;
                     padding:8px;background:#0f0f0f;
                     border:1px solid #1e1e1e;border-radius:12px;
-                    max-height:110px;overflow-y:auto;scrollbar-width:none;
+                    max-height:100px;overflow-y:auto;
+                    scrollbar-width:none;margin-bottom:6px;
                 "></div>
 
-                <!-- แถวพิมพ์ + ปุ่ม -->
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <button id="emoji-btn" style="
-                        background:none;border:none;font-size:20px;
-                        cursor:pointer;padding:4px;border-radius:8px;
-                        flex-shrink:0;opacity:0.5;transition:opacity 0.2s;
-                    ">🙂</button>
-                    <input id="chat-input" placeholder="พิมพ์ข้อความ..." style="
-                        flex:1;background:#1a1a1a;border:1px solid #2a2a2a;
-                        border-radius:18px;color:#c8c8c8;
-                        padding:8px 14px;font-size:12px;outline:none;font-family:inherit;
-                    "/>
-                    <button id="voice-btn" style="
-                        background:none;border:none;font-size:20px;
-                        cursor:pointer;padding:4px;border-radius:8px;
-                        flex-shrink:0;opacity:0.5;transition:opacity 0.2s;
-                    ">🎤</button>
-                    <button id="chat-send-btn" style="
-                        width:34px;height:34px;border-radius:50%;
-                        background:#3a0000;border:1px solid #5a0000;
-                        color:#c8c8c8;cursor:pointer;
-                        display:flex;align-items:center;justify-content:center;
-                        flex-shrink:0;
+                <!-- feature panel (voice etc) -->
+                <div id="feature-panel" style="
+                    display:none;
+                    padding:10px;background:#0f0f0f;
+                    border:1px solid #1e1e1e;border-radius:12px;
+                    margin-bottom:6px;gap:12px;
+                    flex-wrap:wrap;
+                ">
+                    <button id="fp-voice" style="
+                        display:flex;flex-direction:column;align-items:center;gap:4px;
+                        background:#1a1a1a;border:1px solid #2a2a2a;
+                        border-radius:10px;padding:10px 14px;
+                        cursor:pointer;color:#c8c8c8;font-size:10px;font-family:inherit;
+                        transition:background 0.2s;
                     ">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        <span style="font-size:20px;">🎤</span>
+                        Voice
+                    </button>
+                </div>
+
+                <!-- แถวหลัก -->
+                <div style="display:flex;align-items:center;gap:6px;">
+
+                    <!-- ปุ่ม emoji -->
+                    <button id="emoji-btn" style="
+                        background:none;border:none;font-size:18px;
+                        cursor:pointer;flex-shrink:0;opacity:0.4;
+                        padding:4px;transition:opacity 0.2s;
+                    ">🙂</button>
+
+                    <!-- input -->
+                    <input id="chat-input" placeholder="พิมพ์ข้อความ..." style="
+                        flex:1;min-width:0;
+                        background:#1a1a1a;border:1px solid #2a2a2a;
+                        border-radius:18px;color:#c8c8c8;
+                        padding:7px 12px;font-size:12px;
+                        outline:none;font-family:inherit;
+                    "/>
+
+                    <!-- ปุ่ม + feature -->
+                    <button id="feature-btn" style="
+                        background:#1a1a1a;border:1px solid #2a2a2a;
+                        color:#c8c8c8;width:30px;height:30px;
+                        border-radius:50%;cursor:pointer;font-size:16px;
+                        display:flex;align-items:center;justify-content:center;
+                        flex-shrink:0;transition:all 0.2s;
+                    ">+</button>
+
+                    <!-- ปุ่มส่ง -->
+                    <button id="chat-send-btn" style="
+                        background:#3a0000;border:1px solid #5a0000;
+                        color:#c8c8c8;width:30px;height:30px;
+                        border-radius:50%;cursor:pointer;
+                        display:flex;align-items:center;justify-content:center;
+                        flex-shrink:0;transition:all 0.2s;
+                    ">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2"
                              stroke-linecap="round" stroke-linejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13"/>
                             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                         </svg>
                     </button>
+
                 </div>
             </div>
         `;
 
+
         screen.appendChild(page);
 
-        // scroll ลงล่าง
         const msgBox = document.getElementById('chat-messages');
         msgBox.scrollTop = msgBox.scrollHeight;
 
         // ── ปุ่มย้อนกลับ ──────────────────────────────────
-        document.getElementById('chat-back-btn').addEventListener('click', () => {
+       document.getElementById('chat-back-btn').addEventListener('click', () => {
             document.querySelectorAll('.app-page').forEach(p => p.remove());
             renderChatApp();
         });
 
         // ── ส่งข้อความ ────────────────────────────────────
-        document.getElementById('chat-send-btn').addEventListener('click', () => {
+       const doSend = () => {
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (!text) return;
             input.value = '';
             handleSendMessage(contact, text);
+        };
+        document.getElementById('chat-send-btn').addEventListener('click', doSend);
+        document.getElementById('chat-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doSend();
         });
 
-        document.getElementById('chat-input').addEventListener('keydown', (e) => {
-            if (e.key !== 'Enter') return;
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-            handleSendMessage(contact, text);
-        });
 
         // ── Emoji Picker ──────────────────────────────────
         const emojis = [
             '😀','😂','🥲','😍','🥺','😭','😤','😱','🤔','😎',
             '👻','💀','🩸','🔪','😈','👁️','🕯️','🌑','⛩️','🗡️',
             '❤️','🖤','💔','💯','🔥','⚡','🌊','🌙','⭐','✨',
-            '👍','👎','🙏','💪','🤝','👀','🫀','🧠','💣','🚨'
+            '👍','👎','🙏','💪','👀','🫀','🧠','💣','🚨','😏'
         ];
 
-        const emojiPicker = document.getElementById('emoji-picker');
+                const emojiPicker = document.getElementById('emoji-picker');
         emojis.forEach(em => {
-            const btn = document.createElement('button');
-            btn.textContent = em;
-            btn.style.cssText = `
-                background:none;border:none;font-size:20px;
-                cursor:pointer;padding:4px;border-radius:6px;
-                transition:transform 0.1s;
-            `;
-            btn.addEventListener('click', () => {
-                const input = document.getElementById('chat-input');
-                input.value += em;
-                input.focus();
+            const b = document.createElement('button');
+            b.textContent = em;
+            b.style.cssText = 'background:none;border:none;font-size:20px;cursor:pointer;padding:3px;border-radius:6px;';
+            b.addEventListener('click', () => {
+                document.getElementById('chat-input').value += em;
             });
-            btn.addEventListener('mouseover', () => btn.style.transform = 'scale(1.3)');
-            btn.addEventListener('mouseout',  () => btn.style.transform = 'scale(1)');
-            emojiPicker.appendChild(btn);
+            emojiPicker.appendChild(b);
         });
 
-        document.getElementById('emoji-btn').addEventListener('click', () => {
-            const picker = document.getElementById('emoji-picker');
-            const isOpen = picker.style.display === 'flex';
-            picker.style.display = isOpen ? 'none' : 'flex';
-            document.getElementById('emoji-btn').style.opacity = isOpen ? '0.5' : '1';
+
+ document.getElementById('emoji-btn').addEventListener('click', () => {
+            const ep = document.getElementById('emoji-picker');
+            const fp = document.getElementById('feature-panel');
+            fp.style.display = 'none';
+            document.getElementById('feature-btn').textContent = '+';
+            const open = ep.style.display === 'flex';
+            ep.style.display = open ? 'none' : 'flex';
+            document.getElementById('emoji-btn').style.opacity = open ? '0.4' : '1';
+        });
+        
+     // ── Feature Panel (+) ─────────────────────────────────
+        document.getElementById('feature-btn').addEventListener('click', () => {
+            const fp = document.getElementById('feature-panel');
+            const ep = document.getElementById('emoji-picker');
+            ep.style.display = 'none';
+            document.getElementById('emoji-btn').style.opacity = '0.4';
+            const open = fp.style.display === 'flex';
+            fp.style.display = open ? 'none' : 'flex';
+            document.getElementById('feature-btn').textContent = open ? '+' : '✕';
         });
 
-        // ── Voice Popup ───────────────────────────────────
-        document.getElementById('voice-btn').addEventListener('click', () => {
+        document.getElementById('fp-voice').addEventListener('click', () => {
+            document.getElementById('feature-panel').style.display = 'none';
+            document.getElementById('feature-btn').textContent = '+';
             showVoicePopup(contact);
         });
+        
+// ── ลบข้อความ (กดค้างบนฟอง) ─────────────────────────
+        setupMessageHold(contact);
     }
 
-    // ── ฟองข้อความ ───────────────────────────────────────────
-    function renderBubble(text, isUser) {
+
+    // ── render ฟองข้อความ (พร้อมเวลา + อ่านแล้ว) ─────────────
+    function renderBubble(msg, index) {
+        const isUser = msg.isUser;
+        const text   = msg.text;
+        const time   = msg.time || '';
+        const read   = msg.read || false;
+
         return `
-        <div style="
-            display:flex;
-            justify-content:${isUser ? 'flex-end' : 'flex-start'};
+        <div data-index="${index}" style="
+            display:flex;flex-direction:column;
+            align-items:${isUser ? 'flex-end' : 'flex-start'};
             animation:bubbleIn 0.2s ease;
         ">
-            <div style="
-                max-width:75%;padding:8px 12px;
-                border-radius:${isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px'};
+            <div class="bubble-msg" style="
+                max-width:72%;padding:7px 11px;
+                border-radius:${isUser ? '14px 14px 3px 14px' : '14px 14px 14px 3px'};
                 background:${isUser ? '#3a0000' : '#1a1a1a'};
                 border:1px solid ${isUser ? '#5a0000' : '#242424'};
                 color:${isUser ? '#e8d0d0' : '#c8c8c8'};
                 font-size:12px;line-height:1.5;word-break:break-word;
+                cursor:default;user-select:none;
             ">${text}</div>
+            <div style="
+                display:flex;align-items:center;gap:4px;
+                margin-top:2px;padding:0 3px;
+            ">
+                <span style="color:#2a2a2a;font-size:9px;">${time}</span>
+                ${isUser ? `<span style="color:${read ? '#cc2200' : '#2a2a2a'};font-size:9px;">
+                    ${read ? 'อ่านแล้ว' : 'ส่งแล้ว'}
+                </span>` : ''}
+            </div>
         </div>`;
     }
+// ── กดค้างบนฟองเพื่อลบ ───────────────────────────────────
+    function setupMessageHold(contact) {
+        const msgBox = document.getElementById('chat-messages');
+        if (!msgBox) return;
+        let holdTimer = null;
 
+        const startHold = (e) => {
+            const bubble = e.target.closest('[data-index]');
+            if (!bubble) return;
+            holdTimer = setTimeout(() => {
+                showDeleteMessageModal(contact, parseInt(bubble.dataset.index));
+            }, 600);
+        };
+        const cancelHold = () => clearTimeout(holdTimer);
+
+        msgBox.addEventListener('mousedown',  startHold);
+        msgBox.addEventListener('mouseup',    cancelHold);
+        msgBox.addEventListener('mouseleave', cancelHold);
+        msgBox.addEventListener('touchstart', startHold, { passive: true });
+        msgBox.addEventListener('touchend',   cancelHold);
+    }
+
+// ── Modal ลบข้อความ ───────────────────────────────────────
+    function showDeleteMessageModal(contact, index) {
+        document.getElementById('delete-msg-modal')?.remove();
+        const modal = document.createElement('div');
+        modal.id = 'delete-msg-modal';
+        modal.style.cssText = `
+            position:absolute;inset:0;background:rgba(0,0,0,0.85);
+            z-index:999;display:flex;align-items:center;
+            justify-content:center;padding:20px;
+        `;
+        modal.innerHTML = `
+            <div style="
+                background:#0f0f0f;border:1px solid #2a0000;
+                border-radius:16px;padding:20px;width:100%;
+                display:flex;flex-direction:column;gap:14px;
+            ">
+                <div style="color:#e0e0e0;font-size:14px;font-weight:600;text-align:center;">
+                    ลบข้อความนี้?
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button id="delmsg-cancel" style="
+                        flex:1;padding:10px;background:none;
+                        border:1px solid #2a2a2a;border-radius:8px;
+                        color:#4a4a4a;cursor:pointer;font-size:13px;font-family:inherit;
+                    ">ยกเลิก</button>
+                    <button id="delmsg-confirm" style="
+                        flex:1;padding:10px;background:#4a0000;
+                        border:1px solid #6a0000;border-radius:8px;
+                        color:#ff8080;cursor:pointer;font-size:13px;
+                        font-family:inherit;font-weight:500;
+                    ">ลบ</button>
+                </div>
+            </div>
+        `;
+document.getElementById('phone-frame').appendChild(modal);
+
+        document.getElementById('delmsg-cancel').addEventListener('click', () => modal.remove());
+        document.getElementById('delmsg-confirm').addEventListener('click', () => {
+            const history = getChatHistory(contact.id);
+            history.splice(index, 1);
+            saveChatHistory(contact.id, history);
+            modal.remove();
+            // re-render หน้าแชท
+            document.querySelectorAll('.app-page').forEach(p => p.remove());
+            openChatConversation(contact);
+        });
+    }
     // ── ส่งข้อความ + รอ reply ─────────────────────────────────
     async function handleSendMessage(contact, text) {
         const msgBox = document.getElementById('chat-messages');
@@ -738,26 +911,30 @@
         const now = new Date();
         const time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 
-        msgBox.insertAdjacentHTML('beforeend', renderBubble(text, true));
-        msgBox.scrollTop = msgBox.scrollHeight;
-
         const history = getChatHistory(contact.id);
-        history.push({ text, isUser: true, time });
+
+        // เพิ่มข้อความ user
+        const userMsg = { text, isUser: true, time, read: false };
+        history.push(userMsg);
         saveChatHistory(contact.id, history);
 
+        msgBox.insertAdjacentHTML('beforeend', renderBubble(userMsg, history.length - 1));
+        msgBox.scrollTop = msgBox.scrollHeight;
+
+          // typing indicator
         const typingId = 'typing-' + Date.now();
         msgBox.insertAdjacentHTML('beforeend', `
             <div id="${typingId}" style="display:flex;justify-content:flex-start;">
                 <div style="
-                    padding:8px 14px;border-radius:16px 16px 16px 4px;
+                    padding:8px 12px;border-radius:14px 14px 14px 3px;
                     background:#1a1a1a;border:1px solid #242424;
                     display:flex;gap:4px;align-items:center;
                 ">
-                    <span style="width:5px;height:5px;background:#4a4a4a;border-radius:50%;
+                    <span style="width:4px;height:4px;background:#4a4a4a;border-radius:50%;
                                  animation:typingDot 1s infinite;display:block;"></span>
-                    <span style="width:5px;height:5px;background:#4a4a4a;border-radius:50%;
+                    <span style="width:4px;height:4px;background:#4a4a4a;border-radius:50%;
                                  animation:typingDot 1s 0.2s infinite;display:block;"></span>
-                    <span style="width:5px;height:5px;background:#4a4a4a;border-radius:50%;
+                    <span style="width:4px;height:4px;background:#4a4a4a;border-radius:50%;
                                  animation:typingDot 1s 0.4s infinite;display:block;"></span>
                 </div>
             </div>
@@ -770,15 +947,32 @@
         document.getElementById(typingId)?.remove();
         if (statusEl) statusEl.textContent = 'online';
 
-        if (reply) {
-            msgBox.insertAdjacentHTML('beforeend', renderBubble(reply, false));
-            msgBox.scrollTop = msgBox.scrollHeight;
-            history.push({ text: reply, isUser: false, time });
+        // mark ว่าอ่านแล้ว
+        const lastUserIdx = history.length - 1;
+        history[lastUserIdx].read = true;
+        saveChatHistory(contact.id, history);
+
+        // อัพเดต UI "อ่านแล้ว"
+        const bubbles = msgBox.querySelectorAll('[data-index]');
+        bubbles.forEach(b => {
+            if (parseInt(b.dataset.index) === lastUserIdx) {
+                const status = b.querySelector('span:last-child');
+                if (status) { status.textContent = 'อ่านแล้ว'; status.style.color = '#cc2200'; }
+            }
+        });
+        
+       if (reply) {
+            const botMsg = { text: reply, isUser: false, time, read: true };
+            history.push(botMsg);
             saveChatHistory(contact.id, history);
+            msgBox.insertAdjacentHTML('beforeend', renderBubble(botMsg, history.length - 1));
         } else {
-            msgBox.insertAdjacentHTML('beforeend', renderBubble('⚠️ ไม่ได้รับสัญญาณ...', false));
-            msgBox.scrollTop = msgBox.scrollHeight;
+            const errMsg = { text: '⚠️ ไม่ได้รับสัญญาณ...', isUser: false, time, read: true };
+            history.push(errMsg);
+            saveChatHistory(contact.id, history);
+            msgBox.insertAdjacentHTML('beforeend', renderBubble(errMsg, history.length - 1));
         }
+        msgBox.scrollTop = msgBox.scrollHeight;
     }
 
     // ── Voice Popup ───────────────────────────────────────────
@@ -787,32 +981,30 @@
         const popup = document.createElement('div');
         popup.id = 'voice-popup';
         popup.style.cssText = `
-            position:absolute;bottom:80px;left:10px;right:10px;
+            position:absolute;bottom:70px;left:10px;right:10px;
             background:#0f0f0f;border:1px solid #2a2a2a;
-            border-radius:16px;padding:16px;z-index:999;
+            border-radius:16px;padding:14px;z-index:999;
             display:flex;flex-direction:column;gap:10px;
             box-shadow:0 8px 30px rgba(0,0,0,0.8);
             animation:bubbleIn 0.2s ease;
         `;
-        popup.innerHTML = `
+       popup.innerHTML = `
             <div style="color:#4a4a4a;font-size:10px;text-transform:uppercase;
                         letter-spacing:1px;text-align:center;">🎤 Voice Message</div>
             <textarea id="voice-text-input" placeholder="พิมพ์สิ่งที่จะพูด..." style="
                 background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;
                 color:#c8c8c8;padding:10px 12px;font-size:12px;outline:none;
-                resize:none;height:70px;font-family:inherit;line-height:1.5;
+                resize:none;height:60px;font-family:inherit;line-height:1.5;
             "></textarea>
             <div style="
-                display:flex;align-items:center;gap:3px;padding:8px 12px;
+                display:flex;align-items:center;gap:3px;padding:6px 10px;
                 background:#1a1a1a;border-radius:10px;border:1px solid #242424;
             ">
-                <div style="color:#cc2200;font-size:14px;">●</div>
+                <div style="color:#cc2200;font-size:12px;">●</div>
                 <div style="display:flex;gap:2px;align-items:center;flex:1;">
                     ${Array.from({length:18}, () => `
-                        <div style="
-                            width:3px;height:${4 + Math.random()*14}px;
-                            background:#2a2a2a;border-radius:2px;
-                        "></div>
+                        <div style="width:2px;height:${4+Math.random()*12}px;
+                             background:#2a2a2a;border-radius:2px;"></div>
                     `).join('')}
                 </div>
                 <div style="color:#4a4a4a;font-size:10px;">0:03</div>
@@ -844,38 +1036,18 @@
             const now = new Date();
             const time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 
-            msgBox.insertAdjacentHTML('beforeend', `
-                <div style="display:flex;justify-content:flex-end;animation:bubbleIn 0.2s ease;">
-                    <div style="
-                        max-width:75%;padding:8px 12px;
-                        border-radius:16px 16px 4px 16px;
-                        background:#3a0000;border:1px solid #5a0000;
-                        display:flex;align-items:center;gap:8px;
-                    ">
-                        <div style="color:#cc2200;font-size:16px;">🎤</div>
-                        <div>
-                            <div style="display:flex;gap:2px;align-items:center;margin-bottom:3px;">
-                                ${Array.from({length:14}, () => `
-                                    <div style="
-                                        width:2px;height:${3 + Math.random()*10}px;
-                                        background:rgba(255,100,100,0.4);border-radius:1px;
-                                    "></div>
-                                `).join('')}
-                            </div>
-                            <div style="color:#e8d0d0;font-size:10px;opacity:0.6;">0:03</div>
-                        </div>
-                    </div>
-                </div>
-            `);
+           // แสดงฟอง voice
+            const history = getChatHistory(contact.id);
+            const voiceDisplay = `🎤 <span style="opacity:0.6;font-size:11px;">${Array.from({length:8},()=>'▁▂▃▄'.charAt(Math.floor(Math.random()*4))).join('')} 0:03</span>`;
+            const voiceMsg = { text: voiceDisplay, isUser: true, time, read: false };
+            history.push(voiceMsg);
+            saveChatHistory(contact.id, history);
+            msgBox.insertAdjacentHTML('beforeend', renderBubble(voiceMsg, history.length - 1));
             msgBox.scrollTop = msgBox.scrollHeight;
 
-            const history = getChatHistory(contact.id);
-            history.push({ text: `[🎤 "${text}"]`, isUser: true, time });
-            saveChatHistory(contact.id, history);
             handleSendMessage(contact, `[Voice message: "${text}"]`);
         });
     }
-
     
     function setupDraggable() {
         const btn = document.getElementById('phone-toggle-btn');
