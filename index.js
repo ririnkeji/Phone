@@ -264,24 +264,30 @@
             </div>
 
             <div id="phone-navbar">
-                <button id="btn-menu" style="opacity:0;pointer-events:none;"></button>
-                <button id="btn-sleep" title="ปิดจอ">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.5"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                </button>
+               <button id="btn-menu" style="opacity:0;pointer-events:none;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round">
+        <line x1="3" y1="6"  x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+</button>
+               <button id="btn-sleep" title="ปิดจอ">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12l9-9 9 9"/>
+        <path d="M9 21V12h6v9"/>
+    </svg>
+</button>
                 <button id="btn-back" title="Home">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.5"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 12l9-9 9 9"/>
-                        <path d="M9 21V12h6v9"/>
-                    </svg>
-                </button>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+    </svg>
+</button>
             </div>
 
         </div>
